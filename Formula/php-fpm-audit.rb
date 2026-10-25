@@ -34,6 +34,7 @@ class PhpFpmAudit < Formula
   test do
     require "digest"
     require "json"
+    require "shellwords"
 
     assert_equal "a3a5786a93cb7cdd34912a9ef9f313781186b756b99d2c1c17899476e548a227",
                  Digest::SHA256.file(libexec/"p2s-harden.sh").hexdigest
@@ -65,6 +66,8 @@ class PhpFpmAudit < Formula
     assert_match "VERSION = \"#{version}\"", (testpath/"payload.py").read
     arguments = (testpath/"ssh-arguments").read
     assert_match "bootstrap 1 de || exit 2", arguments
-    assert_match "--root '#{testpath}/site with spaces'", arguments
+    remote_arguments = Shellwords.split(arguments.split("exec python3 -B - ", 2).last)
+    assert_equal ["--json", "--lang", "de", "--root", "#{testpath}/site with spaces"],
+                 remote_arguments.reject { |argument| argument == "--progress" }
   end
 end
