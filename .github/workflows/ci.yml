@@ -41,17 +41,30 @@ jobs:
         id: homebrew
         with:
           stable: true
-      - name: Install, inspect and test the actual formula
+      - name: Record Homebrew and architecture
+        run: |
+          brew --version
+          uname -m
+      - name: Check formula style
+        if: runner.os == 'Linux'
+        run: brew style Formula/php-fpm-audit.rb
+      - name: Install the actual formula
         env:
           TEST_TAP: ${{ steps.homebrew.outputs.tap-name }}
         run: |
           set -euo pipefail
-          formula="$TEST_TAP/php-fpm-audit"
-          brew --version
-          uname -m
-          brew style Formula/php-fpm-audit.rb
-          brew install --build-from-source "$formula"
-          brew audit --strict --online "$formula"
-          brew test "$formula"
+          brew install --build-from-source "$TEST_TAP/php-fpm-audit"
+      - name: Audit formula metadata and packaging
+        if: runner.os == 'Linux'
+        env:
+          TEST_TAP: ${{ steps.homebrew.outputs.tap-name }}
+        run: brew audit --strict --online "$TEST_TAP/php-fpm-audit"
+      - name: Test installed bytes, diagnostics and SSH transport
+        env:
+          TEST_TAP: ${{ steps.homebrew.outputs.tap-name }}
+        run: |
+          set -euo pipefail
+          brew test "$TEST_TAP/php-fpm-audit"
           php-fpm-audit --version
-          brew uninstall php-fpm-audit
+      - name: Uninstall the package
+        run: brew uninstall php-fpm-audit
