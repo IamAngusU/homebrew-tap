@@ -1,0 +1,57 @@
+name: Homebrew package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: homebrew-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    if: github.repository == 'angusu-de/homebrew-tap'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    env:
+      HOMEBREW_NO_ANALYTICS: 1
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Require matching public source and CI commits
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/IamAngusU/homebrew-tap/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+          test "$(gh api repos/angusu-de/homebrew-tap/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+      - uses: Homebrew/actions/setup-homebrew@d482da0e602890d3160aade42e72c8556103bf04
+        id: homebrew
+        with:
+          stable: true
+      - name: Install, inspect and test the actual formula
+        env:
+          TEST_TAP: ${{ steps.homebrew.outputs.tap-name }}
+        run: |
+          set -euo pipefail
+          formula="$TEST_TAP/php-fpm-audit"
+          brew --version
+          uname -m
+          brew style Formula/php-fpm-audit.rb
+          brew install --build-from-source "$formula"
+          brew audit --strict --online "$formula"
+          brew test "$formula"
+          php-fpm-audit --version
+          brew uninstall php-fpm-audit
