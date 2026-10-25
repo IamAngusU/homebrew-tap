@@ -5,8 +5,6 @@ class PhpFpmAudit < Formula
   sha256 "151930178a1a9f0ef0eb7290bdce0cc2086b50738aec9003161aa0b399ecfab0"
   license "MIT"
 
-  depends_on "bash"
-
   on_linux do
     depends_on "python@3.14"
   end
@@ -19,7 +17,7 @@ class PhpFpmAudit < Formula
     (bin/"php-fpm-audit").write <<~SH
       #!/bin/sh
       export PATH="#{runtime_path}"
-      exec "#{formula_opt_bin("bash")}/bash" "#{libexec}/p2s-harden.sh" "$@"
+      exec /bin/bash "#{libexec}/p2s-harden.sh" "$@"
     SH
     bin.install_symlink "php-fpm-audit" => "p2s-harden.sh"
   end

@@ -19,7 +19,7 @@ The default audits only. Review changes with `--dry-run` before using `--fix`. F
 
 Upgrade with `brew update && brew upgrade php-fpm-audit`; uninstall with `brew uninstall php-fpm-audit`.
 
-The formula downloads the versioned 2.2.2 release archive and verifies its SHA-256. A small command wrapper invokes Homebrew's Bash; the embedded release launcher stays byte-for-byte unchanged. Linux also receives a declared Python dependency; macOS does not need local Python for SSH use. The legacy `p2s-harden.sh` command remains available.
+The formula downloads the versioned 2.2.2 release archive and verifies its SHA-256. A small command wrapper invokes the existing system Bash; the embedded release launcher stays byte-for-byte unchanged. Linux receives a declared Python dependency; macOS does not need local Python for SSH use. The legacy `p2s-harden.sh` command remains available.
 
 [Usage](https://github.com/IamAngusU/php-fpm-audit#start-here) · [Download provenance](https://github.com/IamAngusU/php-fpm-audit/blob/v2.2.2/docs/PROVENANCE.md) · [Public packaging CI](https://github.com/angusu-de/homebrew-tap/actions/workflows/ci.yml)
 
