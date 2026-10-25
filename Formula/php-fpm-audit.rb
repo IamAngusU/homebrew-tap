@@ -15,11 +15,11 @@ class PhpFpmAudit < Formula
     libexec.install "p2s-harden.sh"
     doc.install "README.md", "README.de.md"
 
-    runtime_path = OS.linux? ? "#{Formula["python@3.14"].opt_libexec}/bin:$PATH" : "$PATH"
+    runtime_path = OS.linux? ? "#{formula_opt_libexec("python@3.14")}/bin:$PATH" : "$PATH"
     (bin/"php-fpm-audit").write <<~SH
       #!/bin/sh
       export PATH="#{runtime_path}"
-      exec "#{Formula["bash"].opt_bin}/bash" "#{libexec}/p2s-harden.sh" "$@"
+      exec "#{formula_opt_bin("bash")}/bash" "#{libexec}/p2s-harden.sh" "$@"
     SH
     bin.install_symlink "php-fpm-audit" => "p2s-harden.sh"
   end
